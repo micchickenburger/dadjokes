@@ -23,6 +23,7 @@ UPS_PIN = 4
 UPS_SPI_ADDRESS = 0x36
 
 jokes = None
+iterator = 0
 bus = None
 
 logging.basicConfig(level=logging.DEBUG)
@@ -85,6 +86,7 @@ def getBattery(bus):
 
 def draw_joke(channel):
   global jokes
+  global iterator
   global bus
 
   # Format variables
@@ -94,7 +96,8 @@ def draw_joke(channel):
 
   while joke == None:
     # Select a random joke
-    joke = random.choice(jokes).strip()
+    joke = jokes[iterator].strip()
+    iterator += 1
     x = len(joke)
 
     if   x < 59:
@@ -201,6 +204,11 @@ try:
   joke_file = open('/usr/lib/jokes/jokes.txt', 'r')
   jokes = joke_file.readlines()
 
+  # Randomly arrange jokes
+  # We randomly arrange the list once in memory to prevent jokes from repeating in a session
+  # At reboot the list will be in a different random arrangement once again
+  random.shuffle(jokes)
+
   # Prepare screen
   epd = epd2in13_V2.EPD()
   logging.info("Screen resolution: " + str(epd.height) + "px by " + str(epd.width) + "px")
@@ -219,7 +227,7 @@ try:
     QuickStart(bus)
 
   # Register push button to draw joke to screen
-  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_joke, bouncetime=5000)
+  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_joke, bouncetime=4000)
 
   while True:
     sleep(1)
