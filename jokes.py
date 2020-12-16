@@ -108,28 +108,28 @@ def draw_joke(channel):
       max_length = 20
       font_size  = 27
     elif x < 68:
-      max_length = 23
+      max_length = 20
       font_size  = 26
     elif x < 76:
       max_length = 22
       font_size  = 25
     elif x < 86:
-      max_length = 23
+      max_length = 24
       font_size  = 24
     elif x < 94:
-      max_length = 26
+      max_length = 23
       font_size  = 23
     elif x < 102:
-      max_length = 26
+      max_length = 25
       font_size  = 22
     elif x < 123:
-      max_length = 25
+      max_length = 27
       font_size  = 21
     elif x < 135:
-      max_length = 27
+      max_length = 28
       font_size  = 20
     elif x < 143:
-      max_length = 29
+      max_length = 30
       font_size  = 19
     elif x < 177:
       max_length = 30
@@ -235,7 +235,7 @@ try:
   random.shuffle(jokes)
 
   # Register push button to draw joke to screen
-  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_joke, bouncetime=4000)
+  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_joke, bouncetime=3000)
 
   # Render first joke
   draw_joke(None)
