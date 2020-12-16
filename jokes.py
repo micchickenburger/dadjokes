@@ -16,6 +16,7 @@ from PIL import Image,ImageDraw,ImageFont
 #
 # Variables
 #
+FONT_PATH = '/usr/lib/jokes/indie-flower.ttf'
 PUSH_BUTTON_PIN = 18
 ENABLE_UPS = True
 UPS_I2C = 1             # 0: /dev/i2c-0, 1: /dev/i2c-1
@@ -163,7 +164,7 @@ def draw_joke(channel):
   logging.debug("# Chars: " + str(len(joke)) + " # Chars/Line: " + str(max_length) + " Font size: " + str(font_size))
 
   # Load font
-  font = ImageFont.truetype('/usr/lib/jokes/indie-flower.ttf', font_size)
+  font = ImageFont.truetype(FONT_PATH, font_size)
   logging.debug("Font pixel dimensions: j " + str(font.getsize('j')) + " W " + str(font.getsize('W')))
 
   logging.info("Writing joke to screen...")
@@ -200,20 +201,18 @@ def draw_joke(channel):
 #
 
 try:
-  # Load jokes into memory
-  joke_file = open('/usr/lib/jokes/jokes.txt', 'r')
-  jokes = joke_file.readlines()
-
-  # Randomly arrange jokes
-  # We randomly arrange the list once in memory to prevent jokes from repeating in a session
-  # At reboot the list will be in a different random arrangement once again
-  random.shuffle(jokes)
-
   # Prepare screen
   epd = epd2in13_V2.EPD()
   logging.info("Screen resolution: " + str(epd.height) + "px by " + str(epd.width) + "px")
   logging.info("Init and clear display")
   epd.init(epd.FULL_UPDATE)
+
+  # Let user know system is starting
+  font = ImageFont.truetype(FONT_PATH, 30)
+  image = Image.new('1', (epd.height, epd.width), 255)
+  draw = ImageDraw.Draw(image)
+  draw.text((40, 40), "Starting up...", font = font, fill = 0)
+  epd.display(epd.getbuffer(image))
 
   # Setup GPIO and SMBus for UPS-Lite and push-button communication
   GPIO.setmode(GPIO.BCM)
@@ -226,8 +225,20 @@ try:
     #PowerOnReset(bus)                  # Enabling this seems to break UPS voltage and capacity reporting
     QuickStart(bus)
 
+  # Load jokes into memory
+  joke_file = open('/usr/lib/jokes/jokes.txt', 'r')
+  jokes = joke_file.readlines()
+
+  # Randomly arrange jokes
+  # We randomly arrange the list once in memory to prevent jokes from repeating in a session
+  # At reboot the list will be in a different random arrangement once again
+  random.shuffle(jokes)
+
   # Register push button to draw joke to screen
   GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_joke, bouncetime=4000)
+
+  # Render first joke
+  draw_joke(None)
 
   while True:
     sleep(1)
