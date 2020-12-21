@@ -2,4 +2,5 @@
 .vagrant/
 packer_cache/
 packer-builder-arm
-raspberry-pi.img
+dadjokes.img
+dadjokes.img.xz

@@ -9,7 +9,7 @@
     "file_checksum_type": "sha256",
     "file_target_extension": "zip",
     "image_build_method": "resize",
-    "image_path": "raspberry-pi.img",
+    "image_path": "dadjokes.img",
     "image_size": "6G",
     "image_type": "dos",
     "image_partitions": [
