@@ -59,6 +59,7 @@
     "destination": "/etc/systemd/system/"
   }, {
     "type": "shell",
+    "environment_vars": ["PI_DEBUG={{user `debug`}}"],
     "script": "./rpi-build.sh"
   }]
 }
