@@ -70,4 +70,10 @@ else
   sudo ln -s /tmp/random-seed /var/lib/systemd/random-seed
   # Systemd should create random-seed file on startup
   sudo sed -i '/^ExecStart=/i ExecStartPre=/bin/echo "" > /tmp/random-seed' /lib/systemd/system/systemd-random-seed.service
+  # Disable services that require rw fs
+  sudo rm /etc/systemd/system/multi-user.target.wants/regenerate_ssh_host_keys.service
+  sudo rm /etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
+  sudo rm /etc/systemd/system/dbus-org.freedesktop.timesync1.service
+  sudo rm /etc/systemd/system/multi-user.target.wants/dhcpcd.service
+  sudo systemctl disable resize2fs_once.service
 fi
