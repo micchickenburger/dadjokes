@@ -1,3 +1,5 @@
+[![Creative Commons Logo][CC]![Attribution Logo][BY]![Share Alike Logo][SA]][License]
+
 Dad Jokes Keychain
 ========================================
 
@@ -31,7 +33,7 @@ on Raspbian Lite and is built using HashiCorp Packer.
 
 1. Install Vagrant
 2. Build: `$ vagrant up`
-3. Write to SD card: `$ sudo dd if=raspberry-pi.img of=/dev/disk4 bs=4096`.  Don't forget to
+3. Write to SD card: `$ sudo dd if=dadjokes.img of=/dev/disk4 bs=4096`.  Don't forget to
    replace `/dev/disk4` with the proper block device for your micro SD card
 
 ## Cleanup
@@ -41,17 +43,25 @@ the temporary files.
 
 ```bash
 $ vagrant destroy
-$ rm -rf raspberry-pi.img packer-builder-arm packer_cache .vagrant
+$ rm -rf dadjokes.img packer-builder-arm packer_cache .vagrant
 ```
 
 ## License
 
-The font included in this project is [Indie Flower](https://fonts.google.com/specimen/Indie+Flower?query=indie#about)
-by Kimberly Geswein. It is released under the [Open Font License](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL).
+The font included in this project is [Indie Flower][Font] by Kimberly Geswein. It is released
+under the [Open Font License][OFL].
 
-The Dad Jokes content comes mostly from [@DadJokes](https://twitter.com/dadjokes). Some have
-been rewritten to better fit the display, and to add variety to pronouns and minimize gender
-roles where they don't add value to the joke.
+The Dad Jokes content comes mostly from [@DadJokes][Jokes]. Some have been rewritten to better
+fit the display, and to add variety to pronouns and minimize gender roles where they don't add
+value to the joke.
 
-All other content &copy;2020 Micah Henning.  All Rights Reserved.  Source code and 3D model
-released under the MIT License.
+All other content &copy;2020 Micah Henning. Licensed under
+[Creative Commons Attribution-ShareAlike 4.0 International][License]
+
+[License]: https://creativecommons.org/licenses/by-sa/4.0?ref=chooser-v1
+[CC]: https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1 "Creative Commons"
+[BY]: https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1 "Attribution Required"
+[SA]: https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1 "Share Alike"
+[Jokes]: https://twitter.com/dadjokes "Dad Jokes Twitter Feed"
+[Font]: https://fonts.google.com/specimen/Indie+Flower?query=indie#about "Indie Flower"
+[OFL]: https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL "Open Font License"
