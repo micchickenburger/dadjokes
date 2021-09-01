@@ -8,7 +8,7 @@
 # Setup ARM emulation and packer
 #
 
-PACKER_VERSION="1.6.6"
+PACKER_VERSION="1.7.4"
 
 # Update the system
 echo "Updating Vagrant box..."
