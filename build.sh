@@ -2,7 +2,7 @@
 
 #
 # Whether to enable USB networking interface in RPi Image for debugging
-#export PI_DEBUG=true
+export PI_DEBUG=true
 
 #
 # Setup ARM emulation and packer
@@ -55,6 +55,6 @@ fi
 # Build
 cd /vagrant
 echo "Building image..."
-host raspbian.raspberrypi.org # ensure updates will work
-host archive.raspberrypi.org
+host raspbian.raspberrypi.org &>/dev/null # ensure updates will work
+host archive.raspberrypi.org &>/dev/null # ensure updates will work
 sudo PI_DEBUG=$PI_DEBUG packer build packer.json
