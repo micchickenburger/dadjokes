@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 import sys
 import os
+import subprocess
+import re
 import logging
 import random
 import math
@@ -18,10 +20,14 @@ from PIL import Image,ImageDraw,ImageFont
 #
 FONT_PATH = '/usr/lib/jokes/indie-flower.ttf'
 PUSH_BUTTON_PIN = 18
-ENABLE_UPS = True
+
+# UPS-Lite Variables
 UPS_I2C = 1             # 0: /dev/i2c-0, 1: /dev/i2c-1
 UPS_PIN = 4
 UPS_SPI_ADDRESS = 0x36
+# Only enable UPS if it can be found in the i2c device
+i2cdetect = subprocess.run(['i2cdetect', '-y', str(UPS_I2C)], capture_output=True, text=True).stdout
+ENABLE_UPS = bool(re.search(r'36', i2cdetect))
 
 jokes = None
 iterator = 0
@@ -168,7 +174,7 @@ def draw_joke(channel):
   logging.debug("Font pixel dimensions: j " + str(font.getsize('j')) + " W " + str(font.getsize('W')))
 
   logging.info("Writing joke to screen...")
-  image = Image.new('1', (epd.height, epd.width), 255)  # 255: clear the frame    
+  image = Image.new('1', (epd.height, epd.width), 255)  # 255: clear the frame
   draw = ImageDraw.Draw(image)
 
   # Evenly space lines
@@ -220,10 +226,13 @@ try:
   GPIO.setup(PUSH_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Push Button
 
   if ENABLE_UPS:
+    logging.info("Found UPS device.  Enabling battery indicator.")
     bus = smbus2.SMBus(UPS_I2C)         # 0: /dev/i2c-0, 1: /dev/i2c-1
     GPIO.setup(UPS_PIN, GPIO.IN)        # UPS-Lite Charging Indicator
     #PowerOnReset(bus)                  # Enabling this seems to break UPS voltage and capacity reporting
     QuickStart(bus)
+  else:
+    logging.info("Could not find UPS device.  Disabling battery indicator.")
 
   # Load jokes into memory
   joke_file = open('/usr/lib/jokes/jokes.txt', 'r')
@@ -242,11 +251,11 @@ try:
 
   while True:
     sleep(1)
-    
+
 except IOError as e:
   logging.info(e)
-    
-except KeyboardInterrupt:    
+
+except KeyboardInterrupt:
   logging.info("ctrl + c:")
   epd2in13_V2.epdconfig.module_exit()
   GPIO.cleanup()
