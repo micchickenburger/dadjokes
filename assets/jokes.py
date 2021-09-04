@@ -95,91 +95,51 @@ def draw_joke(channel):
   global jokes
   global iterator
   global bus
+  global SCREEN_WIDTH
+  global SCREEN_HEIGHT
 
   # Format variables
   max_length = 0
-  font_size = 11 #smallest
+  font_size = 30 # start with largest + 1
   joke = None
 
   while joke == None:
     # Select a random joke
     joke = jokes[iterator].strip()
     iterator += 1
-    x = len(joke)
 
-    if   x < 59:
-      max_length = 19
-      font_size  = 29
-    elif x < 64:
-      max_length = 20
-      font_size  = 27
-    elif x < 68:
-      max_length = 20
-      font_size  = 26
-    elif x < 76:
-      max_length = 22
-      font_size  = 25
-    elif x < 86:
-      max_length = 24
-      font_size  = 24
-    elif x < 94:
-      max_length = 23
-      font_size  = 23
-    elif x < 102:
-      max_length = 25
-      font_size  = 22
-    elif x < 123:
-      max_length = 27
-      font_size  = 21
-    elif x < 135:
-      max_length = 28
-      font_size  = 20
-    elif x < 143:
-      max_length = 30
-      font_size  = 19
-    elif x < 177:
-      max_length = 30
-      font_size  = 18
-    elif x < 182:
-      max_length = 35
-      font_size  = 17
-    elif x < 225:
-      max_length = 36
-      font_size  = 16
-    elif x < 248:
-      max_length = 39
-      font_size  = 15
-    elif x < 299:
-      max_length = 43
-      font_size  = 14
-    elif x < 347:
-      max_length = 46
-      font_size  = 13
-    elif x < 383:
-      max_length = 48
-      font_size  = 12
-    else:
-      logging.info('Joke too long at ' + str(x) + ' characters. Max is 382.')
-      joke = None
+  while True:
+    # Load next smaller font size
+    font_size -= 1 # decrease font size with each iteration
+    font = ImageFont.truetype(FONT_PATH, font_size)
 
-  # Format joke for screen based on length
-  line_count = int(math.ceil(len(joke) / max_length))
-  # Split by nearest word boundary to the max line length, and then stop at spaces
-  lines = re.compile(r'.{1,%s}(?:\s+|$)'%max_length).findall(joke)
-  logging.debug("lines: " + str(lines))
-  logging.debug("# Chars: " + str(len(joke)) + " # Chars/Line: " + str(max_length) + " Font size: " + str(font_size))
+    # Get the total width in pixels of the all the characters in the string and divide by screen width
+    # to get the number of lines that need to be rendered.  Divide the number of lines by the average
+    # character size to know the maximum character length of each line.
+    joke_width = font.getsize(joke)[0]
+    line_count = joke_width / SCREEN_WIDTH
+    max_length_px = joke_width / line_count
+    max_length_char = int(max_length_px / (joke_width / len(joke)))
 
-  # Load font
-  font = ImageFont.truetype(FONT_PATH, font_size)
-  logging.debug("Font pixel dimensions: j " + str(font.getsize('j')) + " W " + str(font.getsize('W')))
+    # Split the string by nearest word boundary to the max line length, and then stop at spaces
+    lines = re.compile(r'.{1,%s}(?:\s+|$)'%max_length_char).findall(joke)
+
+    # For documenting any rendering issues
+    logging.debug("Joke size: " + str(font.getsize(joke)))
+    logging.debug(str(line_count) + " lines: " + str(lines))
+    logging.debug("# Chars: " + str(len(joke)) + " # Chars/Line: " + str(max_length) + " Font size: " + str(font_size))
+
+    # If the total height of all the lines is greater than the screen height, try again
+    if (font.getsize(joke)[1] + 2) * line_count < SCREEN_HEIGHT:
+      break
 
   logging.info("Writing joke to screen...")
-  image = Image.new('1', (epd.height, epd.width), 255)  # 255: clear the frame
+  image = Image.new('1', (SCREEN_WIDTH, SCREEN_HEIGHT), 255)  # 255: clear the frame
   draw = ImageDraw.Draw(image)
 
   # Evenly space lines
   line_height = font.getsize('W')[1] + 2
-  spacer = epd.width - (len(lines) * line_height)
+  spacer = SCREEN_HEIGHT - (len(lines) * line_height)
   top = spacer * 0.4
   for i in range(len(lines)):
     # Remove excess whitespace from line
@@ -189,7 +149,7 @@ def draw_joke(channel):
     total_width = 0
     for j in range(0, len(line)):
       total_width += font.getsize(line[j])[0]
-    left = (epd.height - total_width) / 2
+    left = (SCREEN_WIDTH - total_width) / 2
 
     # Output line
     draw.text((left, top), line, font = font, fill = 0)
@@ -197,7 +157,7 @@ def draw_joke(channel):
 
   # Draw battery icon
   if ENABLE_UPS:
-    image.paste(getBattery(bus), (epd.height - 10, epd.width - 19))
+    image.paste(getBattery(bus), (SCREEN_WIDTH - 10, SCREEN_HEIGHT - 19))
 
   # Draw to screen
   epd.display(epd.getbuffer(image))
@@ -209,13 +169,15 @@ def draw_joke(channel):
 try:
   # Prepare screen
   epd = epd2in13_V2.EPD()
-  logging.info("Screen resolution: " + str(epd.height) + "px by " + str(epd.width) + "px")
+  SCREEN_WIDTH = epd.height
+  SCREEN_HEIGHT = epd.width
+  logging.info("Screen resolution: " + str(SCREEN_WIDTH) + "px by " + str(SCREEN_HEIGHT) + "px")
   logging.info("Init and clear display")
   epd.init(epd.FULL_UPDATE)
 
   # Let user know system is starting
   font = ImageFont.truetype(FONT_PATH, 30)
-  image = Image.new('1', (epd.height, epd.width), 255)
+  image = Image.new('1', (SCREEN_WIDTH, SCREEN_HEIGHT), 255)
   draw = ImageDraw.Draw(image)
   draw.text((40, 40), "Starting up...", font = font, fill = 0)
   epd.display(epd.getbuffer(image))
