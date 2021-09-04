@@ -19,7 +19,7 @@ from PIL import Image,ImageDraw,ImageFont
 # Variables
 #
 FONT_PATH = '/usr/lib/jokes/indie-flower.ttf'
-PUSH_BUTTON_PIN = 18
+PUSH_BUTTON_PIN = 26
 
 # UPS-Lite Variables
 UPS_I2C = 1             # 0: /dev/i2c-0, 1: /dev/i2c-1
