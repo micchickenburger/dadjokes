@@ -11,6 +11,7 @@ import re
 import struct
 import smbus2
 import RPi.GPIO as GPIO
+from gpiozero import Button
 from time import sleep
 from waveshare_epd import epd2in13_V2
 from PIL import Image,ImageDraw,ImageFont
@@ -202,7 +203,6 @@ try:
   # Setup GPIO and SMBus for UPS-Lite and push-button communication
   GPIO.setmode(GPIO.BCM)
   GPIO.setwarnings(False)
-  GPIO.setup(PUSH_BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Push Button
 
   if ENABLE_UPS:
     logging.info("Found UPS device.  Enabling battery indicator.")
@@ -223,7 +223,8 @@ try:
   random.shuffle(items)
 
   # Register push button to draw item to screen
-  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_item, bouncetime=3000)
+  button = Button(PUSH_BUTTON_PIN)
+  button.when_released = draw_item
 
   # Render first item
   draw_item(None)
