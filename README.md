@@ -36,6 +36,23 @@ on Raspbian Lite and is built using HashiCorp Packer.
 3. Write to SD card: `$ sudo dd if=dadjokes.img of=/dev/disk4 bs=4096`.  Don't forget to
    replace `/dev/disk4` with the proper block device for your micro SD card
 
+## Developing
+
+By default all networking and video output services and interfaces are disabled to conserve
+battery life.  There is a debug mode available during vagrant provision that will leave these
+interfaces enabled so you can SSH into the device via the data microUSB interface.
+
+```bash
+# When provisioning
+$ PI_DEBUG=true vagrant provision
+# Configure your RNDIS interface with IPv4 address 10.0.0.1/24
+$ ssh pi@10.0.0.2 # password is raspberry
+# This project uses a systemd service
+$ sudo systemctl status jokes
+# View logs
+$ sudo journalctl -u jokes
+```
+
 ## Cleanup
 
 When you're done you can free up disk space by destroying the vagrant environment and removing
