@@ -94,12 +94,8 @@ def getBattery(bus):
 # Item Formatting Logic
 #
 
-def draw_item(channel):
-  global items
+def draw_item():
   global iterator
-  global bus
-  global SCREEN_WIDTH
-  global SCREEN_HEIGHT
 
   # Format variables
   max_length = 0
@@ -163,31 +159,22 @@ def draw_item(channel):
   epd.display(epd.getbuffer(image))
 
 #
-# Main Program Logic
+# Setup program for a given mode
 #
+def setup(mode):
+  global items
+  global FONT_PATH
 
-try:
-  # Determine operation mode, defaulting to jokes
-  MODE = os.getenv('DADJOKES_MODE', 'jokes')
-
-  if MODE == 'jokes':
+  if mode == 'jokes':
     FONT_PATH = JOKES_FONT_PATH
     ITEMS_PATH = '/usr/lib/jokes/jokes.txt'
     START_MSG = 'Dad Jokes'
-  elif MODE == 'quotes':
+  elif mode == 'quotes':
     FONT_PATH = QUOTES_FONT_PATH
     ITEMS_PATH = '/usr/lib/jokes/quotes.txt'
     START_MSG = 'Quotes'
   else:
-    sys.exit('Unknown mode: ' + MODE)
-
-  # Prepare screen
-  epd = epd2in13_V2.EPD()
-  SCREEN_WIDTH = epd.height
-  SCREEN_HEIGHT = epd.width
-  logging.info("Screen resolution: " + str(SCREEN_WIDTH) + "px by " + str(SCREEN_HEIGHT) + "px")
-  logging.info("Init and clear display")
-  epd.init(epd.FULL_UPDATE)
+    sys.exit('Unknown mode: ' + mode)
 
   # Clear frame
   image = Image.new('1', (SCREEN_WIDTH, SCREEN_HEIGHT), 255) # 255: clear frame
@@ -199,6 +186,33 @@ try:
   top = (SCREEN_HEIGHT - font.getsize(START_MSG)[1]) / 2
   draw.text((left, top), START_MSG, font = font, fill = 0)
   epd.display(epd.getbuffer(image))
+
+  # Load items into memory
+  items_file = open(ITEMS_PATH, 'r')
+  items = items_file.readlines()
+
+  # Randomly arrange items
+  # We randomly arrange the list once in memory to prevent items from repeating in a session
+  # At reboot the list will be in a different random arrangement once again
+  random.shuffle(items)
+
+  # Render first item
+  draw_item()
+
+#
+# Main Program Logic
+#
+try:
+  # Determine operation mode, defaulting to jokes
+  mode = os.getenv('DADJOKES_MODE', 'jokes')
+
+  # Prepare screen
+  epd = epd2in13_V2.EPD()
+  SCREEN_WIDTH = epd.height
+  SCREEN_HEIGHT = epd.width
+  logging.info("Screen resolution: " + str(SCREEN_WIDTH) + "px by " + str(SCREEN_HEIGHT) + "px")
+  logging.info("Init and clear display")
+  epd.init(epd.FULL_UPDATE)
 
   # Setup GPIO and SMBus for UPS-Lite and push-button communication
   GPIO.setmode(GPIO.BCM)
@@ -213,21 +227,12 @@ try:
   else:
     logging.info("Could not find UPS device.  Disabling battery indicator.")
 
-  # Load items into memory
-  items_file = open(ITEMS_PATH, 'r')
-  items = items_file.readlines()
-
-  # Randomly arrange items
-  # We randomly arrange the list once in memory to prevent items from repeating in a session
-  # At reboot the list will be in a different random arrangement once again
-  random.shuffle(items)
-
   # Register push button to draw item to screen
   button = Button(PUSH_BUTTON_PIN)
   button.when_released = draw_item
 
-  # Render first item
-  draw_item(None)
+  # Setup mode
+  setup(mode)
 
   while True:
     sleep(1)
