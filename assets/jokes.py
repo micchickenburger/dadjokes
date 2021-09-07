@@ -148,10 +148,7 @@ def draw_item(channel):
     line = lines[i].strip()
 
     # Center text
-    total_width = 0
-    for j in range(0, len(line)):
-      total_width += font.getsize(line[j])[0]
-    left = (SCREEN_WIDTH - total_width) / 2
+    left = (SCREEN_WIDTH - font.getsize(line)[0]) / 2
 
     # Output line
     draw.text((left, top), line, font = font, fill = 0)
@@ -175,9 +172,11 @@ try:
   if MODE == 'jokes':
     FONT_PATH = JOKES_FONT_PATH
     ITEMS_PATH = '/usr/lib/jokes/jokes.txt'
+    START_MSG = 'Dad Jokes'
   elif MODE == 'quotes':
     FONT_PATH = QUOTES_FONT_PATH
     ITEMS_PATH = '/usr/lib/jokes/quotes.txt'
+    START_MSG = 'Quotes'
   else:
     sys.exit('Unknown mode: ' + MODE)
 
@@ -189,11 +188,15 @@ try:
   logging.info("Init and clear display")
   epd.init(epd.FULL_UPDATE)
 
+  # Clear frame
+  image = Image.new('1', (SCREEN_WIDTH, SCREEN_HEIGHT), 255) # 255: clear frame
+  draw = ImageDraw.Draw(image)
+
   # Let user know system is starting
   font = ImageFont.truetype(FONT_PATH, 30)
-  image = Image.new('1', (SCREEN_WIDTH, SCREEN_HEIGHT), 255)
-  draw = ImageDraw.Draw(image)
-  draw.text((40, 40), "Starting up...", font = font, fill = 0)
+  left = (SCREEN_WIDTH - font.getsize(START_MSG)[0]) / 2
+  top = (SCREEN_HEIGHT - font.getsize(START_MSG)[1]) / 2
+  draw.text((left, top), START_MSG, font = font, fill = 0)
   epd.display(epd.getbuffer(image))
 
   # Setup GPIO and SMBus for UPS-Lite and push-button communication
