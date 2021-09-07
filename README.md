@@ -36,6 +36,18 @@ on Raspbian Lite and is built using HashiCorp Packer.
 3. Write to SD card: `$ sudo dd if=dadjokes.img of=/dev/disk4 bs=4096`.  Don't forget to
    replace `/dev/disk4` with the proper block device for your micro SD card
 
+The default mode is Dad Jokes, but this project supports other modes, too.  To set a default
+mode during build, execute:
+
+```bash
+$ DADJOKES_MODE=jokes vagrant up
+```
+
+Currently, these modes are available:
+* jokes (default)
+* quotes
+
+
 ## Developing
 
 By default all networking and video output services and interfaces are disabled to conserve
