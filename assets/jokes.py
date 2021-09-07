@@ -18,8 +18,10 @@ from PIL import Image,ImageDraw,ImageFont
 #
 # Variables
 #
-FONT_PATH = '/usr/lib/jokes/indie-flower.ttf'
 PUSH_BUTTON_PIN = 26
+JOKES_FONT_PATH = '/usr/lib/jokes/indie-flower.ttf'
+QUOTES_FONT_PATH = '/usr/lib/jokes/allura.ttf'
+FONT_PATH = None
 
 # UPS-Lite Variables
 UPS_I2C = 1             # 0: /dev/i2c-0, 1: /dev/i2c-1
@@ -29,7 +31,7 @@ UPS_SPI_ADDRESS = 0x36
 i2cdetect = subprocess.run(['i2cdetect', '-y', str(UPS_I2C)], capture_output=True, text=True).stdout
 ENABLE_UPS = bool(re.search(r'36', i2cdetect))
 
-jokes = None
+items = None
 iterator = 0
 bus = None
 
@@ -88,11 +90,11 @@ def getBattery(bus):
   return battery
 
 #
-# Joke Formatting Logic
+# Item Formatting Logic
 #
 
-def draw_joke(channel):
-  global jokes
+def draw_item(channel):
+  global items
   global iterator
   global bus
   global SCREEN_WIDTH
@@ -101,11 +103,11 @@ def draw_joke(channel):
   # Format variables
   max_length = 0
   font_size = 30 # start with largest + 1
-  joke = None
+  item = None
 
-  while joke == None:
-    # Select a random joke
-    joke = jokes[iterator].strip()
+  while item == None:
+    # Select a random item
+    item = items[iterator].strip()
     iterator += 1
 
   while True:
@@ -116,24 +118,24 @@ def draw_joke(channel):
     # Get the total width in pixels of the all the characters in the string and divide by screen width
     # to get the number of lines that need to be rendered.  Divide the number of lines by the average
     # character size to know the maximum character length of each line.
-    joke_width = font.getsize(joke)[0]
-    line_count = joke_width / SCREEN_WIDTH
-    max_length_px = joke_width / line_count
-    max_length_char = int(max_length_px / (joke_width / len(joke)))
+    item_width = font.getsize(item)[0]
+    line_count = item_width / SCREEN_WIDTH
+    max_length_px = item_width / line_count
+    max_length_char = int(max_length_px / (item_width / len(item)))
 
     # Split the string by nearest word boundary to the max line length, and then stop at spaces
-    lines = re.compile(r'.{1,%s}(?:\s+|$)'%max_length_char).findall(joke)
+    lines = re.compile(r'.{1,%s}(?:\s+|$)'%max_length_char).findall(item)
 
     # For documenting any rendering issues
-    logging.debug("Joke size: " + str(font.getsize(joke)))
+    logging.debug("Item size: " + str(font.getsize(item)))
     logging.debug(str(line_count) + " lines: " + str(lines))
-    logging.debug("# Chars: " + str(len(joke)) + " # Chars/Line: " + str(max_length) + " Font size: " + str(font_size))
+    logging.debug("# Chars: " + str(len(item)) + " # Chars/Line: " + str(max_length) + " Font size: " + str(font_size))
 
     # If the total height of all the lines is greater than the screen height, try again
-    if (font.getsize(joke)[1] + 2) * line_count < SCREEN_HEIGHT:
+    if (font.getsize(item)[1] + 2) * line_count < SCREEN_HEIGHT:
       break
 
-  logging.info("Writing joke to screen...")
+  logging.info("Writing item to screen...")
   image = Image.new('1', (SCREEN_WIDTH, SCREEN_HEIGHT), 255)  # 255: clear the frame
   draw = ImageDraw.Draw(image)
 
@@ -167,6 +169,18 @@ def draw_joke(channel):
 #
 
 try:
+  # Determine operation mode, defaulting to jokes
+  MODE = os.getenv('DADJOKES_MODE', 'jokes')
+
+  if MODE == 'jokes':
+    FONT_PATH = JOKES_FONT_PATH
+    ITEMS_PATH = '/usr/lib/jokes/jokes.txt'
+  elif MODE == 'quotes':
+    FONT_PATH = QUOTES_FONT_PATH
+    ITEMS_PATH = '/usr/lib/jokes/quotes.txt'
+  else:
+    sys.exit('Unknown mode: ' + MODE)
+
   # Prepare screen
   epd = epd2in13_V2.EPD()
   SCREEN_WIDTH = epd.height
@@ -196,20 +210,20 @@ try:
   else:
     logging.info("Could not find UPS device.  Disabling battery indicator.")
 
-  # Load jokes into memory
-  joke_file = open('/usr/lib/jokes/jokes.txt', 'r')
-  jokes = joke_file.readlines()
+  # Load items into memory
+  items_file = open(ITEMS_PATH, 'r')
+  items = items_file.readlines()
 
-  # Randomly arrange jokes
-  # We randomly arrange the list once in memory to prevent jokes from repeating in a session
+  # Randomly arrange items
+  # We randomly arrange the list once in memory to prevent items from repeating in a session
   # At reboot the list will be in a different random arrangement once again
-  random.shuffle(jokes)
+  random.shuffle(items)
 
-  # Register push button to draw joke to screen
-  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_joke, bouncetime=3000)
+  # Register push button to draw item to screen
+  GPIO.add_event_detect(PUSH_BUTTON_PIN, GPIO.FALLING, callback=draw_item, bouncetime=3000)
 
-  # Render first joke
-  draw_joke(None)
+  # Render first item
+  draw_item(None)
 
   while True:
     sleep(1)

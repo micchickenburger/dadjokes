@@ -1,6 +1,9 @@
 #!/bin/bash
 
-#
+# Mode to build, using "jokes" as default
+export DADJOKES_MODE="${DADJOKES_MODE:-jokes}"
+echo "Building image in '${DADJOKES_MODE}' mode"
+
 # Whether to enable USB networking interface in RPi Image for debugging
 export PI_DEBUG=true
 

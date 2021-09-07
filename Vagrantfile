@@ -8,5 +8,7 @@ Vagrant.configure("2") do |config|
     v.linked_clone = false
     v.ssh_info_public = true
   end
-  config.vm.provision "build", type: "shell", :path => "build.sh", privileged: false
+  config.vm.provision "build", type: "shell", :path => "build.sh", privileged: false, env: {
+    "DADJOKES_MODE" => ENV["DADJOKES_MODE"]
+  }
 end

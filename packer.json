@@ -1,5 +1,6 @@
 {
   "variables": {
+    "DADJOKES_MODE": "{{env `DADJOKES_MODE`}}",
     "debug": "{{env `PI_DEBUG`}}"
   },
   "builders": [{
@@ -41,6 +42,7 @@
       "PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin",
       "LC_ALL=C",
       "DEBIAN_FRONTEND=noninteractive",
+      "DADJOKES_MODE={{user `DADJOKES_MODE`}}",
       "PI_DEBUG={{user `debug`}}"
     ],
     "qemu_binary_source_path": "/usr/bin/qemu-arm-static",
@@ -60,7 +62,7 @@
     "destination": "/etc/systemd/system/"
   }, {
     "type": "shell",
-    "environment_vars": ["PI_DEBUG={{user `debug`}}"],
+    "environment_vars": ["DADJOKES_MODE={{user `DADJOKES_MODE`}}", "PI_DEBUG={{user `debug`}}"],
     "script": "./rpi-build.sh"
   }]
 }

@@ -20,6 +20,7 @@ mv e-Paper/RaspberryPi_JetsonNano/python/lib/waveshare_epd /usr/lib/python3/dist
 echo Creating systemd service...
 ln -s /etc/systemd/system/jokes.service /etc/systemd/system/multi-user.target.wants/jokes.service &>/dev/null
 sudo chmod +x /usr/bin/jokes.py &>/dev/null
+echo "$DADJOKES_MODE" | sudo tee -a /etc/environment
 
 echo Cleaning up...
 sudo apt-get remove --purge -y triggerhappy logrotate dphys-swapfile rsyslog &>/dev/null
