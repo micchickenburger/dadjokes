@@ -4,7 +4,7 @@ Dad Jokes Keychain
 ========================================
 
 The Dad Jokes keychain was a project I did as a Christmas gift for a dear friend of mine
-who, thankfully for me, loves bad jokes.
+who, thankfully for me, loves dad jokes.
 
 ## Preparations
 
@@ -77,12 +77,15 @@ $ rm -rf dadjokes.img packer-builder-arm packer_cache .vagrant
 
 ## License
 
-The font included in this project is [Indie Flower][Font] by Kimberly Geswein. It is released
-under the [Open Font License][OFL].
+The fonts included in this project are [Indie Flower][JokesFont] by Kimberly Geswein (Dad Jokes)
+and [Allura](QuotesFont) (Quotes) by Robert Leuschke. They are both released under the
+[Open Font License][OFL].
 
 The Dad Jokes content comes mostly from [@DadJokes][Jokes]. Some have been rewritten to better
 fit the display, and to add variety to pronouns and minimize gender roles where they don't add
-value to the joke.
+value to the joke.  Most of the quotes are from well-known celebrities, authors, politicians,
+athletes, and other notable people.  Quote attribution has been left out in the interest of
+conserving screen space.  An Internet search will easily reveal the source of each quote.
 
 All other content &copy;2020 Micah Henning. Licensed under
 [Creative Commons Attribution-ShareAlike 4.0 International][License]
@@ -92,5 +95,6 @@ All other content &copy;2020 Micah Henning. Licensed under
 [BY]: https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1 "Attribution Required"
 [SA]: https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1 "Share Alike"
 [Jokes]: https://twitter.com/dadjokes "Dad Jokes Twitter Feed"
-[Font]: https://fonts.google.com/specimen/Indie+Flower?query=indie#about "Indie Flower"
+[JokesFont]: https://fonts.google.com/specimen/Indie+Flower?#about "Indie Flower"
+[QuotesFont]: https://fonts.google.com/specimen/Allura?#about "Allura"
 [OFL]: https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL "Open Font License"
