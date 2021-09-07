@@ -23,6 +23,7 @@ PUSH_BUTTON_PIN = 26
 JOKES_FONT_PATH = '/usr/lib/jokes/indie-flower.ttf'
 QUOTES_FONT_PATH = '/usr/lib/jokes/allura.ttf'
 FONT_PATH = None
+MODES = ["jokes", "quotes"]
 
 # UPS-Lite Variables
 UPS_I2C = 1             # 0: /dev/i2c-0, 1: /dev/i2c-1
@@ -35,6 +36,9 @@ ENABLE_UPS = bool(re.search(r'36', i2cdetect))
 items = None
 iterator = 0
 bus = None
+
+# Add attribute to Button class to track when button was recently held
+Button.was_held = False
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -96,6 +100,11 @@ def getBattery(bus):
 
 def draw_item():
   global iterator
+
+  # Don't draw item when changing modes
+  if button.was_held:
+    button.was_held = False # reset; button is not being held anymore if the script got to this point
+    return
 
   # Format variables
   max_length = 0
@@ -200,6 +209,19 @@ def setup(mode):
   draw_item()
 
 #
+# Change modes
+#
+def change_modes():
+  global mode
+
+  button.was_held = True
+
+  # Get index for next mode in list
+  index = (MODES.index(mode) + 1) % len(MODES)
+  mode = MODES[index]
+  setup(mode)
+
+#
 # Main Program Logic
 #
 try:
@@ -230,6 +252,10 @@ try:
   # Register push button to draw item to screen
   button = Button(PUSH_BUTTON_PIN)
   button.when_released = draw_item
+
+  # Register push button to switch modes when held down for at least two seconds
+  button.hold_time = 2
+  button.when_held = change_modes
 
   # Setup mode
   setup(mode)
