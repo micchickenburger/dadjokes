@@ -126,19 +126,20 @@ def draw_item():
     # character size to know the maximum character length of each line.
     item_width = font.getsize(item)[0]
     line_count = item_width / SCREEN_WIDTH
-    max_length_px = item_width / line_count
+    max_length_px = (item_width - line_count * font.getsize('W')[0]) / line_count # subtract width of capital W to each line to account for kerning
     max_length_char = int(max_length_px / (item_width / len(item)))
 
     # Split the string by nearest word boundary to the max line length, and then stop at spaces
     lines = re.compile(r'.{1,%s}(?:\s+|$)'%max_length_char).findall(item)
 
     # For documenting any rendering issues
-    logging.debug("Item size: " + str(font.getsize(item)))
+    logging.debug("Total item width: " + str(item_width) + "px / Max px per Line: " + str(max_length_px))
     logging.debug(str(line_count) + " lines: " + str(lines))
-    logging.debug("# Chars: " + str(len(item)) + " # Chars/Line: " + str(max_length) + " Font size: " + str(font_size))
+    logging.debug("# Chars: " + str(len(item)) + " / Max Chars per Line: " + str(max_length_char) + " / Font size: " + str(font_size))
 
     # If the total height of all the lines is greater than the screen height, try again
-    if (font.getsize(item)[1] + 2) * line_count < SCREEN_HEIGHT:
+    line_height = font.getsize(item)[1] * 0.9 # keep lines a little closer together
+    if (line_height * len(lines)) < SCREEN_HEIGHT:
       break
 
   logging.info("Writing item to screen...")
@@ -146,9 +147,8 @@ def draw_item():
   draw = ImageDraw.Draw(image)
 
   # Evenly space lines
-  line_height = font.getsize('W')[1] + 2
-  spacer = SCREEN_HEIGHT - (len(lines) * line_height)
-  top = spacer * 0.4
+  space_remaining = SCREEN_HEIGHT - (len(lines) * line_height)
+  top = space_remaining / 2
   for i in range(len(lines)):
     # Remove excess whitespace from line
     line = lines[i].strip()
@@ -181,7 +181,7 @@ def setup(mode):
   elif mode == 'quotes':
     FONT_PATH = QUOTES_FONT_PATH
     ITEMS_PATH = '/usr/lib/jokes/quotes.txt'
-    START_MSG = 'Quotes'
+    START_MSG = 'Motivational Quotes'
   else:
     sys.exit('Unknown mode: ' + mode)
 
