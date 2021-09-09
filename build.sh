@@ -60,4 +60,4 @@ cd /vagrant
 echo "Building image..."
 host raspbian.raspberrypi.org &>/dev/null # ensure updates will work
 host archive.raspberrypi.org &>/dev/null # ensure updates will work
-sudo PI_DEBUG=$PI_DEBUG packer build packer.json
+sudo PI_DEBUG=$PI_DEBUG DADJOKES_MODE=$DADJOKES_MODE packer build packer.json
