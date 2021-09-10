@@ -6,7 +6,6 @@ import subprocess
 import re
 import logging
 import random
-import math
 import re
 import struct
 import smbus2
@@ -107,7 +106,6 @@ def draw_item():
     return
 
   # Format variables
-  max_length = 0
   font_size = 30 # start with largest + 1
   item = None
 

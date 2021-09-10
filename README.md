@@ -4,7 +4,7 @@ Dad Jokes Keychain
 ========================================
 
 The Dad Jokes keychain was a project I did as a Christmas gift for a dear friend of mine
-who, thankfully for me, loves dad jokes.
+who, thankfully for me, loves dad jokes.  I have since added a motivational quotes mode.
 
 ## Preparations
 
@@ -26,6 +26,22 @@ If you want or need to debug/log into the system, you will also need a micro USB
 supports data transfer.
 
 ## Build
+
+You can either download the latest release from GitHub or build the image manually.
+
+### Download
+
+Download the [latest release](https://github.com/micchickenburger/dadjokes/releases/latest) with hash and signature, then verify the download before flashing the SD card:
+
+```bash
+$ cd /path/to/download/folder
+$ gpg --verify SHA256SUMS.sig # Public key is on Keybase or https://www.micah.soy/pgp-key.txt
+$ sha256sum --check SHA256SUMS
+# Assuming all is valid, flash your SD card
+$ xzcat dadjokes.img.xz | sudo dd of=/dev/disk4 bs=4096
+```
+
+### Build Manually
 
 This project uses HashiCorp Vagrant to create a build environment for building the Raspberry
 Pi image.  The build environment is based on Ubuntu Focal and the Raspberry Pi image is based

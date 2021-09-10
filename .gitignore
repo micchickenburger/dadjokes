@@ -4,3 +4,5 @@ packer_cache/
 packer-builder-arm
 dadjokes.img
 dadjokes.img.xz
+SHA256SUMS
+SHA256SUMS.sig
